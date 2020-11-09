@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+			integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+			crossorigin="anonymous"
+		/>
+		<script src="vue.js"></script>
+		<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+		<title>Tugas</title>
+	</head>
+	<body>
+		<div id="app" class="min-vh-100 d-flex flex-column">
+			<div class="container-sm pt-5">
+				<h1 class="text-light font-weight-bold text-center mb-4">
+					<i class="fas fa-check"></i> TODO LIST
+				</h1>
+				<div class="my-4 card mx-auto shadow" style="max-width: 750px">
+					<div class="card-body font-weight-bold">
+						<div class="form-row">
+							<div class="form-group col-md-8">
+								<label for="inputNamaTodo">Nama Todo</label>
+								<input
+									type="text"
+									class="form-control"
+									placeholder="Tulis nama todo..."
+									id="inputNamaTodo"
+									v-model="nama"
+								/>
+							</div>
+							<div class="form-group col-md-4">
+								<label for="inputPrioritas">Prioritas</label>
+								<select
+									class="form-control"
+									v-model="prioritas"
+									id="inputPrioritas"
+								>
+									<option value="" disabled selected>
+										Pilih tingkat prioritas...
+									</option>
+									<option>Penting</option>
+									<option>Biasa</option>
+									<option>Tidak Penting</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group col-md-12">
+								<label for="inputCatatan">Catatan (Opsional)</label>
+								<textarea
+									class="form-control"
+									id="inputCatatan"
+									rows="3"
+									v-model="catatan"
+									placeholder="Tulis catatan..."
+								></textarea>
+							</div>
+						</div>
+						<button class="btn-danger btn font-weight-bold" @click="resetForm">
+							<i class="fas fa-undo-alt mr-1"></i> Reset
+						</button>
+						<button class="btn-success btn font-weight-bold ml-1" @click="addTodo">
+							<i class="fas fa-check mr-1"></i> Simpan
+						</button>
+					</div>
+				</div>
+				<transition-group name="fade">
+					<div
+						v-for="(todo, index) in todos"
+						class="my-3 card mx-auto shadow fade-item"
+						style="max-width: 750px"
+						:key="todo.id"
+					>
+						<div class="card-body">
+							<div class="row">
+								<div class="col-1 text-center">
+									<div class="mt-1">
+										<i
+											style="position: relative; top: 2px"
+											class="fa-lg text-muted checkBox"
+											:class="todo.selesai ? ['fas', 'fa-check-square'] : ['far', 'fa-square']"
+											@click="toggleSelesai(todo)"
+										></i>
+									</div>
+								</div>
+								<div class="col pl-0">
+									<h3
+										class="card-title d-inline-block font-weight-bold m-0"
+										:class="todo.selesai ? ['strikethrough', 'text-muted'] : ''"
+									>
+										{{ todo.nama }}
+									</h3>
+									<div
+										v-if="todo.prioritas"
+										class="alert small mb-0 ml-2 d-inline-block position-relative"
+										:class="(todo.prioritas == 'Penting') ? 'alert-danger' : (todo.prioritas == 'Tidak Penting') ? 'alert-success' : 'alert-primary'"
+										style="
+											width: fit-content;
+											padding: 0.2rem 0.4rem;
+											bottom: 5px;
+										"
+									>
+										{{ todo.prioritas }}
+									</div>
+									<p
+										class="card-text"
+										:class="todo.selesai ? ['strikethrough', 'text-muted'] : ''"
+									>
+										{{ todo.catatan }}
+									</p>
+								</div>
+								<div class="col-1 text-center" @click="removeTodo(index)">
+									<div class="mt-1">
+										<i class="far fa-trash-alt fa-lg text-muted"></i>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</transition-group>
+			</div>
+			<footer class="py-4 text-center mt-auto text-light">
+				{{ hans.nama }} | {{ hans.npm }} | {{ hans.kelas }}
+			</footer>
+		</div>
+	</body>
+	<style>
+		body {
+			background: linear-gradient(
+				157deg,
+				rgba(102, 0, 255, 0.95) 0%,
+				rgba(0, 255, 217, 0.95) 100%
+			);
+		}
+		.strikethrough {
+			text-decoration: line-through;
+		}
+		.fas.fa-check-square:hover,
+		.far.fa-square:hover {
+			color: black !important;
+		}
+		.far.fa-trash-alt:hover {
+			color: #dc3545 !important;
+		}
+		.fade-item {
+			transition: all 0.5s;
+		}
+		.fade-enter,
+		.fade-leave-to {
+			opacity: 0;
+		}
+		.fade-enter {
+			transform: translateY(-20px);
+		}
+		.fade-leave-active {
+			transition: transform 20s ease-in;
+			position: absolute;
+		}
+	</style>
+	<script>
+		new Vue({
+			el: "#app",
+			data: {
+				nama: "",
+				prioritas: "",
+				catatan: "",
+				id: 0,
+				hans: {
+					nama: "Hans Giovanni Andries",
+					npm: "180709734",
+					kelas: "PAW-A",
+				},
+				todos: [],
+			},
+			methods: {
+				addTodo() {
+					if (this.nama === "") {
+						alert("Nama todo masih kosong!");
+					} else if (this.prioritas === "") {
+						alert("Pilih tingkat prioritas!");
+					} else {
+						let todo = {
+							id: this.id,
+							nama: this.nama,
+							prioritas: this.prioritas,
+							catatan: this.catatan,
+							selesai: false,
+						};
+						this.id++;
+						this.todos.push(todo);
+						this.resetForm();
+					}
+				},
+				toggleSelesai(todo) {
+					todo.selesai = !todo.selesai;
+				},
+				removeTodo(index) {
+					this.todos.splice(index, 1);
+				},
+				resetForm() {
+					this.nama = "";
+					this.prioritas = "";
+					this.catatan = "";
+				},
+			},
+		});
+	</script>
+</html>
